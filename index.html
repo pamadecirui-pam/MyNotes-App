@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Notes</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#ff69b4">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background: linear-gradient(to right, #ffe4f2, #e0f7ff);
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .card {
+            border-radius: 20px;
+        }
+
+        .btn {
+            border-radius: 12px;
+        }
+
+        .note-text {
+            font-size: 16px;
+        }
+
+        .empty {
+            text-align: center;
+            color: gray;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container mt-5">
+    <div class="card shadow p-4">
+
+        <h2 class="text-center mb-1">My Notes</h2>
+        <p class="text-center text-muted">Write something you don’t want to forget</p>
+
+        <div class="input-group mb-3">
+            <input type="text" id="noteInput" class="form-control" placeholder="Type your note here...">
+            <button class="btn btn-primary" onclick="addNote()">Add</button>
+        </div>
+
+        <ul id="notesList" class="list-group"></ul>
+        <p id="emptyMessage" class="empty">No notes yet... start typing!</p>
+
+    </div>
+</div>
+
+<script>
+    let notes = JSON.parse(localStorage.getItem("notes")) || [];
+
+    function displayNotes() {
+        let list = document.getElementById("notesList");
+        let emptyMsg = document.getElementById("emptyMessage");
+
+        list.innerHTML = "";
+
+        if (notes.length === 0) {
+            emptyMsg.style.display = "block";
+        } else {
+            emptyMsg.style.display = "none";
+        }
+
+        notes.forEach((note, index) => {
+            list.innerHTML += `
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span class="note-text">${note}</span>
+                    <button class="btn btn-outline-danger btn-sm" onclick="deleteNote(${index})">🗑</button>
+                </li>
+            `;
+        });
+    }
+
+    function addNote() {
+        let input = document.getElementById("noteInput");
+
+        if (input.value.trim() === "") {
+            alert("Oops! Please write something first");
+            return;
+        }
+
+        notes.push(input.value);
+        localStorage.setItem("notes", JSON.stringify(notes));
+
+        input.value = "";
+        displayNotes();
+    }
+
+    function deleteNote(index) {
+        if (confirm("Are you sure you want to delete this note?")) {
+            notes.splice(index, 1);
+            localStorage.setItem("notes", JSON.stringify(notes));
+            displayNotes();
+        }
+    }
+
+    displayNotes();
+
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('service-worker.js')
+    }
+</script>
+
+</body>
+</html>
